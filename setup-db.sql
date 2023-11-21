@@ -1,3 +1,5 @@
+-- SCRIPT TO GENERATE AN EMPTY SQLITE3 DATABASE FOR TESTING
+-- Database name on the Synology NAS is synoautoblock.db
 DROP TABLE IF EXISTS "AutoBlockIP";
 DROP INDEX IF EXISTS "result_deny_idx";
 DROP INDEX IF EXISTS "result_expiretime_idx";

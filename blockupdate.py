@@ -148,7 +148,6 @@ if __name__ == '__main__':
     args = parse_args()
 
     ## CONNECT TO DATABASE
-
     #Sqlite3 just silently creates an empty database file is none is found so check that it exists first.. 
     if not os.path.isfile(db):
         raise FileNotFoundError(f"No such file or directory: '{db}'")
@@ -194,7 +193,6 @@ if __name__ == '__main__':
 
     ## DOWNLOAD NEW LISTS AND UPDATE DATABASE
     if args.update: 
-
         # save results in a set to make sure there are no duplicates
         ip_blacklist = set()
 

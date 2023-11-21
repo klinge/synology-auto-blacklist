@@ -4,7 +4,7 @@ abuseipkey = <YOUR-KEY-HERE>
 env = DEBUG
 
 [DATABASE]
-dbfile = synoautoblock.db
+dbfile = /etc/synoautoblock.db
 
 [LOGS]
 log = log/blockupdate.log

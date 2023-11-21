@@ -1,0 +1,11 @@
+[APP]
+version = 0.9
+abuseipkey = <YOUR-KEY-HERE>
+env = DEBUG
+
+[DATABASE]
+dbfile = synoautoblock.db
+
+[LOGS]
+log = log/blockupdate.log
+error-log = log/blockupdate-errors.log

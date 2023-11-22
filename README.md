@@ -4,16 +4,24 @@ Python script to download and add IPs to the Synologys blacklist database
 ## Info
 Downloads blacklisted IPs from AbuseIpDB and Blocklist.de and adds them to the blacklist database for your Synology NAS
 
+Mostly developed for my personal use, but should work for anyone :) 
+
 ## Installation
 1. AbuseIpDb requires an api key. So first register there to get your personal api key
 2. Rename the file config.ini.ORG to config.ini
 3. Add your AbuseIpDb api key to the config.ini file
-4. Move the files blockupdate.py and config.ini to a folder on your NAS
+4. Move the files "blockupdate.py" and "config.ini" to a folder on your NAS
 5. Install python3 on your NAS using Package Center
-6. Use Task Scheduler on the NAS to run the script with the periodicity you want
+6. ssh to the NAS, change to the folder you put the script in and run the command: 
+    "pip install -r requirements.txt"
+7. Use Task Scheduler on the NAS to run the script with the periodicity you want
+
+It it strongly recommended that you update your database file! You can do this with the command: 
+    "python3 blockupdate.py -b [backup-folder]"
 
 ## Usage of the script
-<TODO>
+Not written yet.. You can see available options by running
+    "python3 blockupdate.py -h"
 
 ## Inspired by
 The script borrows (heavily in parts) from https://github.com/kichetof/AutoBlockIPList

@@ -132,6 +132,7 @@ def process_ip(ip_list, expire):
     return processed, invalid
 
 def ipv4_to_ipstd(ipv4):
+    # pylint: disable=consider-using-f-string
     numbers = [int(bits) for bits in ipv4.split('.')]
     return '0000:0000:0000:0000:0000:ffff:{:02x}{:02x}:{:02x}{:02x}'.format(*numbers).upper()
 
@@ -150,7 +151,8 @@ def folder(attr='r'):
     return check_folder
 
 def verbose(message):
-    #global args
+    # pylint: disable=used-before-assignment
+    global args
     if args.verbose:
         print(message)
 

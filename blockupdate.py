@@ -177,7 +177,7 @@ def parse_args():
 
     if a.clear_db and a.backup_to is None:
         # pylint: disable=raising-bad-type
-        raise parser.error("backup folder should be set for clear db") 
+        raise parser.error("backup folder should be set for clear db")
     if a.dry_run:
         a.verbose = True
 

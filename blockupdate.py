@@ -151,7 +151,7 @@ def folder(attr='r'):
     return check_folder
 
 def verbose(message):
-    # pylint: disable=used-before-assignment
+    # pylint: disable=global-variable-not-assigned
     global args
     if args.verbose:
         print(message)

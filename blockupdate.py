@@ -44,7 +44,6 @@ ABUSE_KEY = config.get('APP', 'abuseipkey')
 ENV = config.get('APP', 'env')
 CERT = 'certs/zscaler-cert-chain.pem'
 db = config.get('DATABASE', 'dbfile')
-args = ""
 
 
 def create_connection(db_file):

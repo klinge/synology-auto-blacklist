@@ -1,4 +1,4 @@
-# pylint: disable=missing-function-docstring
+# pylint: disable=missing-function-docstring,line-too-long
 '''
 A command line tool that downloads lists of blacklisted IPs from the internet and
 updates the database in a Synology server that holds blocked IP addresses. 
@@ -42,6 +42,7 @@ config.read('config.ini')
 VERSION = config.get('APP', 'version')
 ABUSE_KEY = config.get('APP', 'abuseipkey')
 ENV = config.get('APP', 'env')
+CERT = 'certs/zscaler-cert-chain.pem'
 db = config.get('DATABASE', 'dbfile')
 
 
@@ -56,7 +57,7 @@ def download_blocklist():
     url = "https://lists.blocklist.de/lists/all.txt"
 
     try:
-        response = requests.request(method='GET', url=url, verify='certs/zscaler-cert-chain.pem')
+        response = requests.get(url=url, verify=CERT, timeout=10)
         data = response.text.split("\n")
 
     except requests.exceptions.RequestException as e:
@@ -89,7 +90,7 @@ def download_abuseipdb(key):
                 json_data.close()
         else:
             verbose("-abuseipdb: getting data from API..")
-            response = requests.request(method='GET', url=url, headers=headers, params=querystring, verify='certs/zscaler-cert-chain.pem')
+            response = requests.get(url=url, headers=headers, params=querystring, verify=CERT, timeout=10)
             decoded_response = json.loads(response.text)
 
         # Extract IP addresses from json

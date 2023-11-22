@@ -1,4 +1,4 @@
-# pylint: disable=missing-function-docstring,line-too-long,unspecified-encoding,raising-bad-type
+# pylint: disable=missing-function-docstring,line-too-long,unspecified-encoding
 '''
 A command line tool that downloads lists of blacklisted IPs from the internet and
 updates the database in a Synology server that holds blocked IP addresses. 
@@ -176,7 +176,8 @@ def parse_args():
     a = parser.parse_args()
 
     if a.clear_db and a.backup_to is None:
-        raise parser.error("backup folder should be set for clear db")
+        # pylint: disable=raising-bad-type
+        raise parser.error("backup folder should be set for clear db") 
     if a.dry_run:
         a.verbose = True
 

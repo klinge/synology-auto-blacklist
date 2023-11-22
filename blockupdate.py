@@ -1,4 +1,4 @@
-# pylint: disable=global-variable-not-assigned
+# pylint: disable=global-variable-not-assigned, disable-missing-function-docstring
 '''
 A command line tool that downloads lists of blacklisted IPs from the internet and
 updates the database in a Synology server that holds blocked IP addresses. 

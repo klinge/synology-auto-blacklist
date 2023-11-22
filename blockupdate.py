@@ -1,4 +1,4 @@
-# pylint: disable=missing-function-docstring,line-too-long
+# pylint: disable=missing-function-docstring,line-too-long,unspecified-encoding,raising-bad-type
 '''
 A command line tool that downloads lists of blacklisted IPs from the internet and
 updates the database in a Synology server that holds blocked IP addresses. 
@@ -44,6 +44,7 @@ ABUSE_KEY = config.get('APP', 'abuseipkey')
 ENV = config.get('APP', 'env')
 CERT = 'certs/zscaler-cert-chain.pem'
 db = config.get('DATABASE', 'dbfile')
+args = ""
 
 
 def create_connection(db_file):

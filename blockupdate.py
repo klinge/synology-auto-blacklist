@@ -1,3 +1,27 @@
+# pylint: disable=global-variable-not-assigned
+'''
+A command line tool that downloads lists of blacklisted IPs from the internet and
+updates the database in a Synology server that holds blocked IP addresses. 
+
+Intended use is to schedule running the tool with cron/Task Scheduler and running it to keep
+constantly updated list of IPs to block
+
+    Usage: 
+        run blockupdate.py 
+    Options: 
+        -u - download and update blocklist
+        -e - set expire time (in days) on the new posts
+        -v - verbose
+        -b [backup-path] - backup database to backup-path
+        --dry-run - only test 
+        --clear-database - deletes all rows from blocklist
+
+        To see all options run blockupdate.py -h
+
+    Results:
+        when run with the -u option updates the database synoautoblock.db 
+'''
+
 import os
 import argparse
 import configparser

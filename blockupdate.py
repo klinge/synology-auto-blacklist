@@ -5,9 +5,10 @@ import shutil
 from datetime import datetime
 import time
 import sqlite3
-import requests
 import json
 import ipaddress
+import requests
+
 
 
 ## FETCH values from config.ini
@@ -44,7 +45,8 @@ def download_abuseipdb(key):
     test_file = ""
 
     if ENV != 'PROD':
-        test_file = "test-data/abuseip.json" #FOR TESTING: use a file with the json test data since AbuseIpDb only allows 5 daily calls to the API.. 
+        #FOR TESTING: use a file with the json test data since AbuseIpDb only allows 5 daily calls to the API..
+        test_file = "test-data/abuseip.json"
 
     url = 'https://api.abuseipdb.com/api/v2/blacklist'
     querystring = {
@@ -54,22 +56,22 @@ def download_abuseipdb(key):
         'Accept': 'application/json',
         'Key': key
     }
-    try: 
+    try:
         # check if test file exists - if so use it instead of calling api
         if os.path.isfile(test_file):
             verbose("-abuseipdb: reading test data from file..")
             with open(test_file) as json_data:
-                decodedResponse = json.load(json_data)
+                decoded_response = json.load(json_data)
                 json_data.close()
-        else:     
+        else:
             verbose("-abuseipdb: getting data from API..")
             response = requests.request(method='GET', url=url, headers=headers, params=querystring, verify='certs/zscaler-cert-chain.pem')
-            decodedResponse = json.loads(response.text)
-        
+            decoded_response = json.loads(response.text)
+
         # Extract IP addresses from json
-        resp_data = decodedResponse['data'] #select only the data part of the json
+        resp_data = decoded_response['data'] #select only the data part of the json
         data = [item['ipAddress'] for item in resp_data] # create data using list comprehension
-    
+
     except requests.exceptions.RequestException as e:
         verbose(f"ERROR: unable to connect to AbuseIpDB. Error was: {e}")
 
@@ -108,8 +110,7 @@ def folder(attr='r'):
             if attr == 'w' and not os.access(path, os.W_OK):
                 raise argparse.ArgumentTypeError(f'"{path}" is not writable.')
             return os.path.abspath(path)
-        else:
-            raise argparse.ArgumentTypeError(f'"{path}" is not a valid path.')
+        raise argparse.ArgumentTypeError(f'"{path}" is not a valid path.')
     return check_folder
 
 def verbose(message):
@@ -148,7 +149,7 @@ if __name__ == '__main__':
     args = parse_args()
 
     ## CONNECT TO DATABASE
-    #Sqlite3 just silently creates an empty database file is none is found so check that it exists first.. 
+    #Sqlite3 just silently creates an empty database file is none is found so check that it exists first..
     if not os.path.isfile(db):
         raise FileNotFoundError(f"No such file or directory: '{db}'")
     if not os.access(db, os.R_OK):
@@ -170,14 +171,14 @@ if __name__ == '__main__':
 
     ## REMOVE EXPIRED ROWS IN DATABASE
     if args.remove_expired:
-        countSql = "SELECT COUNT(*) from AutoBlockIP WHERE Deny = 1 AND ExpireTime > 0 AND ExpireTime < strftime('%s','now')"
-        deleteSql = "DELETE FROM AutoBlockIP WHERE Deny = 1 AND ExpireTime > 0 AND ExpireTime < strftime('%s','now')"
-        
-        count = c.execute(countSql).fetchone()[0]
+        COUNT_SQL = "SELECT COUNT(*) from AutoBlockIP WHERE Deny = 1 AND ExpireTime > 0 AND ExpireTime < strftime('%s','now')"
+        DELETE_SQL = "DELETE FROM AutoBlockIP WHERE Deny = 1 AND ExpireTime > 0 AND ExpireTime < strftime('%s','now')"
+
+        count = c.execute(COUNT_SQL).fetchone()[0]
         verbose(f'Remove expired: ready to delete {count} expired posts in the database')
-        
+
         if not args.dry_run:
-            c.execute(deleteSql)
+            c.execute(DELETE_SQL)
             conn.commit()
             verbose("All expired entries were successfully removed")
 
@@ -185,23 +186,23 @@ if __name__ == '__main__':
     if args.clear_db:
         count = c.execute("SELECT COUNT(*) from AutoBlockIP").fetchone()[0]
         verbose(f'Clear DB: ready to delete {count} rows in the database')
-        
+
         if not args.dry_run:
             c.execute("DELETE FROM AutoBlockIP WHERE Deny = 1")
             conn.commit()
             verbose("All deny entries were successfully removed")
 
     ## DOWNLOAD NEW LISTS AND UPDATE DATABASE
-    if args.update: 
+    if args.update:
         # save results in a set to make sure there are no duplicates
         ip_blacklist = set()
 
         ## DOWNLOAD FROM BLOCKLIST.DE
         verbose("Downloading blacklist from blocklist.de...")
-        
+
         blocklist_blacklist = download_blocklist()
         verbose(f"-blocklist.de: Successfully downloaded {len(blocklist_blacklist)} IPs.")
-        
+
         result, failed = process_ip(blocklist_blacklist, args.expire_in_day)
         verbose(f"--Processed IP list. Adding: {len(result)} items. Failed: {len(failed)}")
 
@@ -210,13 +211,13 @@ if __name__ == '__main__':
 
         ## DOWNLOAD FROM ABUSEIP
         verbose("Downloading blacklist from abuseipdb.com...")
-        
+
         abuseipdb_blacklist = download_abuseipdb(ABUSE_KEY)
         verbose(f"-abuseipdb.com: Successfully downloaded {len(abuseipdb_blacklist)} IPs.")
-        
+
         result, failed = process_ip(abuseipdb_blacklist, args.expire_in_day)
         verbose(f"--Processed IP list. Adding: {len(result)} items. Failed: {len(failed)}")
-        
+
         result_set = { tuple(s) for s in result } #convert the list in result to a set
         ip_blacklist.update(result_set)
 
@@ -232,7 +233,7 @@ if __name__ == '__main__':
             c.executemany("REPLACE INTO AutoBlockIP (IP, IPStd, ExpireTime, Deny, RecordTime, Type, Meta) "
                             "VALUES(?, ?, ?, 1, strftime('%s','now'), 0, NULL);", ip_blacklist)
             conn.commit()
-        else: 
+        else:
             print("Dry run - no update of the database done..")
 
         count_ip = c.execute("SELECT COUNT(IP) FROM AutoBlockIP WHERE Deny = 1")

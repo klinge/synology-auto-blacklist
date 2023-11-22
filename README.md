@@ -10,7 +10,7 @@ Downloads blacklisted IPs from AbuseIpDB and Blocklist.de and adds them to the b
 3. Add your AbuseIpDb api key to the config.ini file
 4. Move the files blockupdate.py and config.ini to a folder on your NAS
 5. Install python3 on your NAS using Package Center
-6. Use cron to schedule run the script with the periodicity you want
+6. Use Task Scheduler on the NAS to run the script with the periodicity you want
 
 ## Usage of the script
 <TODO>

@@ -42,7 +42,12 @@ config.read('config.ini')
 VERSION = config.get('APP', 'version')
 ABUSE_KEY = config.get('APP', 'abuseipkey')
 ENV = config.get('APP', 'env')
-CERT = 'certs/zscaler-cert-chain.pem'
+
+#Handle special case where https requests need an intermediate certificate
+CERT_REQUIRED = ENV == "DEBUG-CERT"
+if CERT_REQUIRED:
+    CERT = 'certs/zscaler-cert-chain.pem'
+
 db = config.get('DATABASE', 'dbfile')
 
 
@@ -57,7 +62,10 @@ def download_blocklist():
     url = "https://lists.blocklist.de/lists/all.txt"
 
     try:
-        response = requests.get(url=url, verify=CERT, timeout=10)
+        if CERT_REQUIRED:
+            response = requests.get(url=url, verify=CERT, timeout=10)
+        else:
+            response = requests.get(url=url, timeout=10)
         data = response.text.split("\n")
 
     except requests.exceptions.RequestException as e:
@@ -90,7 +98,10 @@ def download_abuseipdb(key):
                 json_data.close()
         else:
             verbose("-abuseipdb: getting data from API..")
-            response = requests.get(url=url, headers=headers, params=querystring, verify=CERT, timeout=10)
+            if CERT_REQUIRED:
+                response = requests.get(url=url, headers=headers, params=querystring, verify=CERT, timeout=10)
+            else:
+                response = requests.get(url=url, headers=headers, params=querystring, timeout=10)
             decoded_response = json.loads(response.text)
 
         # Extract IP addresses from json

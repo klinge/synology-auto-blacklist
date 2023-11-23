@@ -1,4 +1,4 @@
-# pylint: disable=missing-function-docstring,line-too-long,unspecified-encoding
+# pylint: disable=missing-function-docstring,line-too-long,unspecified-encoding,logging-fstring-interpolation
 '''
 A command line tool that downloads lists of blacklisted IPs from the internet and
 updates the database in a Synology server that holds blocked IP addresses. 
@@ -118,7 +118,7 @@ def download_abuseipdb(key):
         data = [item['ipAddress'] for item in resp_data] # create data using list comprehension
 
     except requests.exceptions.RequestException as e:
-        logger.warning(f"WARNING: unable to connect to AbuseIpDB. Error was: {e}")
+        logger.warning("WARNING: unable to connect to AbuseIpDB. Error was: %s", e)
 
     return data
 

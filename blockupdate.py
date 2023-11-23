@@ -123,7 +123,6 @@ def download_abuseipdb(key):
     return data
 
 def process_ip(ip_list, expire):
-    logging.info
     processed = []
     invalid = []
     for i in ip_list:

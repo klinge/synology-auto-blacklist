@@ -78,7 +78,7 @@ def download_blocklist():
         data = response.text.split("\n")
 
     except requests.exceptions.RequestException as e:
-        verbose(f"ERROR: unable to connect to blocklist.de. Error was: {e}")
+        logger.warning(f"WARNING: unable to connect to blocklist.de. Error was: {e}")
 
     return data
 
@@ -101,12 +101,12 @@ def download_abuseipdb(key):
     try:
         # check if test file exists - if so use it instead of calling api
         if os.path.isfile(test_file):
-            verbose("-abuseipdb: reading test data from file..")
+            logger.info("-abuseipdb: reading test data from file..")
             with open(test_file) as json_data:
                 decoded_response = json.load(json_data)
                 json_data.close()
         else:
-            verbose("-abuseipdb: getting data from API..")
+            logger.info("-abuseipdb: getting data from API..")
             if CERT_REQUIRED:
                 response = requests.get(url=url, headers=headers, params=querystring, verify=CERT, timeout=10)
             else:
@@ -118,7 +118,7 @@ def download_abuseipdb(key):
         data = [item['ipAddress'] for item in resp_data] # create data using list comprehension
 
     except requests.exceptions.RequestException as e:
-        verbose(f"ERROR: unable to connect to AbuseIpDB. Error was: {e}")
+        logger.warning(f"WARNING: unable to connect to AbuseIpDB. Error was: {e}")
 
     return data
 
@@ -158,12 +158,6 @@ def folder(attr='r'):
             return os.path.abspath(path)
         raise argparse.ArgumentTypeError(f'"{path}" is not a valid path.')
     return check_folder
-
-def verbose(message):
-    # pylint: disable=global-variable-not-assigned, used-before-assignment
-    global args
-    if args.verbose:
-        print(message)
 
 def parse_args():
     parser = argparse.ArgumentParser(prog='blockupdate')
@@ -211,12 +205,12 @@ if __name__ == '__main__':
     if args.backup_to is not None:
         filename = datetime.now().strftime("%Y%m%d_%H%M%S") + "_backup_synoautoblock.db"
         shutil.copy(db, os.path.join(args.backup_to, filename))
-        verbose("Database backup successful")
+        logger.info("Database backup successful")
 
     ## SET EXPIRE DATE
     if args.expire_in_day > 0:
         args.expire_in_day = int(start_time) + args.expire_in_day * 60 * 60 * 24
-        verbose(f'Expire time set to: {args.expire_in_day}')
+        logger.info(f'Expire time set to: {args.expire_in_day}')
 
     ## REMOVE EXPIRED ROWS IN DATABASE
     if args.remove_expired:
@@ -224,22 +218,22 @@ if __name__ == '__main__':
         DELETE_SQL = "DELETE FROM AutoBlockIP WHERE Deny = 1 AND ExpireTime > 0 AND ExpireTime < strftime('%s','now')"
 
         count = c.execute(COUNT_SQL).fetchone()[0]
-        verbose(f'Remove expired: ready to delete {count} expired posts in the database')
+        logger.info(f'Remove expired: ready to delete {count} expired posts in the database')
 
         if not args.dry_run:
             c.execute(DELETE_SQL)
             conn.commit()
-            verbose("All expired entries were successfully removed")
+            logger.info("All expired entries were successfully removed")
 
     ## REMOVE ALL POSTS IN DATABASE
     if args.clear_db:
         count = c.execute("SELECT COUNT(*) from AutoBlockIP").fetchone()[0]
-        verbose(f'Clear DB: ready to delete {count} rows in the database')
+        logger.info(f'Clear DB: ready to delete {count} rows in the database')
 
         if not args.dry_run:
             c.execute("DELETE FROM AutoBlockIP WHERE Deny = 1")
             conn.commit()
-            verbose("All deny entries were successfully removed")
+            logger.info("All deny entries were successfully removed")
 
     ## DOWNLOAD NEW LISTS AND UPDATE DATABASE
     if args.update:
@@ -247,50 +241,50 @@ if __name__ == '__main__':
         ip_blacklist = set()
 
         ## DOWNLOAD FROM BLOCKLIST.DE
-        verbose("Downloading blacklist from blocklist.de...")
+        logger.info("Downloading blacklist from blocklist.de...")
 
         blocklist_blacklist = download_blocklist()
-        verbose(f"-blocklist.de: Successfully downloaded {len(blocklist_blacklist)} IPs.")
+        logger.info(f"-blocklist.de: Successfully downloaded {len(blocklist_blacklist)} IPs.")
 
         result, failed = process_ip(blocklist_blacklist, args.expire_in_day)
-        verbose(f"--Processed IP list. Adding: {len(result)} items. Failed: {len(failed)}")
+        logger.info(f"--Processed IP list. Adding: {len(result)} items. Failed: {len(failed)}")
 
         result_set = { tuple(s) for s in result } #convert the list in result to a set
         ip_blacklist.update(result_set)
 
         ## DOWNLOAD FROM ABUSEIP
-        verbose("Downloading blacklist from abuseipdb.com...")
+        logger.info("Downloading blacklist from abuseipdb.com...")
 
         abuseipdb_blacklist = download_abuseipdb(ABUSE_KEY)
-        verbose(f"-abuseipdb.com: Successfully downloaded {len(abuseipdb_blacklist)} IPs.")
+        logger.info(f"-abuseipdb.com: Successfully downloaded {len(abuseipdb_blacklist)} IPs.")
 
         result, failed = process_ip(abuseipdb_blacklist, args.expire_in_day)
-        verbose(f"--Processed IP list. Adding: {len(result)} items. Failed: {len(failed)}")
+        logger.info(f"--Processed IP list. Adding: {len(result)} items. Failed: {len(failed)}")
 
         result_set = { tuple(s) for s in result } #convert the list in result to a set
         ip_blacklist.update(result_set)
 
-        verbose(f"Blacklist total: {len(ip_blacklist)}")
+        logger.info(f"Blacklist total: {len(ip_blacklist)}")
 
         count_ip = c.execute("SELECT COUNT(IP) FROM AutoBlockIP WHERE Deny = 1")
         count_ip_before = count_ip.fetchone()[0]
-        verbose(f"Number of IPs in database before update: {count_ip_before}")
+        logger.info(f"Number of IPs in database before update: {count_ip_before}")
 
         # UPDATE DATABASE
         if not args.dry_run:
-            verbose("Updating database...")
+            logger.info("Updating database...")
             c.executemany("REPLACE INTO AutoBlockIP (IP, IPStd, ExpireTime, Deny, RecordTime, Type, Meta) "
                             "VALUES(?, ?, ?, 1, strftime('%s','now'), 0, NULL);", ip_blacklist)
             conn.commit()
         else:
-            print("Dry run - no update of the database done..")
+            logger.warning("Dry run - no update of the database done..")
 
         count_ip = c.execute("SELECT COUNT(IP) FROM AutoBlockIP WHERE Deny = 1")
         count_ip_after = count_ip.fetchone()[0]
-        verbose(f"Number of IPs in database after update: {count_ip_after}")
+        logger.info(f"Number of IPs in database after update: {count_ip_after}")
 
-    verbose("Closing DB...")
+    logger.info("Closing DB...")
     conn.close()
 
     elapsed = round(time.time() - start_time, 2)
-    verbose(f"Elapsed time: {elapsed} seconds")
+    logger.info(f"Elapsed time: {elapsed} seconds")

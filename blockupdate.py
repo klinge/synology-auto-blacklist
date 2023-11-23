@@ -199,7 +199,7 @@ if __name__ == '__main__':
 
     ## DATABASE BACKUP
     if args.backup_to is not None:
-        filename = datetime.now().strftime("%Y%d%m_%H%M%S") + "_backup_synoautoblock.db"
+        filename = datetime.now().strftime("%Y%m%d_%H%M%S") + "_backup_synoautoblock.db"
         shutil.copy(db, os.path.join(args.backup_to, filename))
         verbose("Database backup successful")
 

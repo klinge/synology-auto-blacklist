@@ -42,13 +42,16 @@ config.read('config.ini')
 VERSION = config.get('APP', 'version')
 ABUSE_KEY = config.get('APP', 'abuseipkey')
 ENV = config.get('APP', 'env')
-LOGLEVEL = "logging." + config.get('APP',' loglevel')
+LOGLEVEL = getattr(logging, config.get('APP', 'loglevel'))
 
+logger = logging.getLogger(__name__)
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
-    level=logging.INFO,
+    level=logging.ERROR,
     datefmt='%Y-%m-%d %H:%M:%S'
 )
+logger.setLevel(LOGLEVEL)
+
 
 #Handle special case where https requests need an intermediate certificate
 CERT_REQUIRED = ENV == "DEBUG-CERT"
@@ -204,11 +207,6 @@ if __name__ == '__main__':
 
     conn = create_connection(db)
     c = conn.cursor()
-
-    banan.debug("I'm a debug log")
-    logging.info("I'm an info text")
-    logging.warning("This is a warning")
-    logging.error("OH NO, an error!!!")
 
     ## DATABASE BACKUP
     if args.backup_to is not None:

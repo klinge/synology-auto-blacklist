@@ -191,6 +191,9 @@ if __name__ == '__main__':
     start_time = time.time()
     args = parse_args()
 
+    if args.verbose:
+        logger.setLevel(logging.INFO)
+
     ## CONNECT TO DATABASE
     #Sqlite3 just silently creates an empty database file is none is found so check that it exists first..
     if not os.path.isfile(db):

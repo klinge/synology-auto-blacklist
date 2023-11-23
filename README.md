@@ -18,22 +18,26 @@ You can get the script in two ways..
 4. Move the files "blockupdate.py" and "config.ini" to a folder on your NAS
 5. Install python3 on your NAS using Package Center
 6. ssh to the NAS, change to the folder you put the script in and create a virtual environment, then activate it
-'''bash
+```bash
 python3 -m venv venv
 . venv/bin/activate
-'''
+```
 7. Install the needed dependencies 
-'''bash
+```bash
 pip install -r requirements.txt
-'''
-7. Use Task Scheduler on the NAS to run the script with the periodicity you want
+```
+8. Use Task Scheduler on the NAS to run the script with the periodicity you want
 
-It it strongly recommended that you update your database file! You can do this with the command: 
-    "python3 blockupdate.py -b [backup-folder]"
+It it strongly recommended that you backup your database file first! You can do this with the command: 
+```bash
+python3 blockupdate.py -b [backup-folder]
+```
 
 ## Usage of the script
 Not written yet.. You can see available options by running
-    "python3 blockupdate.py -h"
+```bash
+python3 blockupdate.py -h
+```
 
 ## Inspired by
 The script borrows (heavily in parts) from https://github.com/kichetof/AutoBlockIPList

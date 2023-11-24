@@ -2,11 +2,11 @@
 version = 0.9
 abuseipkey = <YOUR-KEY-HERE>
 env = DEBUG
-loglevel = WARNING
 
 [DATABASE]
 dbfile = /etc/synoautoblock.db
 
-[LOGS]
+[LOGGING]
+loglevel = WARNING
 log = log/blockupdate.log
 error-log = log/blockupdate-errors.log

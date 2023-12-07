@@ -2,6 +2,8 @@
 version = 0.9
 abuseipkey = <YOUR-KEY-HERE>
 env = DEBUG
+use-extra-cert = False
+cert-path = <path to certificate file>
 
 [DATABASE]
 dbfile = /etc/synoautoblock.db

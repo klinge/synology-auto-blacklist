@@ -43,6 +43,9 @@ VERSION = config.get('APP', 'version')
 ABUSE_KEY = config.get('APP', 'abuseipkey')
 ENV = config.get('APP', 'env')
 LOGLEVEL = getattr(logging, config.get('LOGGING', 'loglevel'))
+USECERT = config['APP'].getboolean('use-extra-cert')
+if USECERT:
+    CERT = config.get('APP', 'cert-path')
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -51,12 +54,6 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 logger.setLevel(LOGLEVEL)
-
-
-#Handle special case where https requests need an intermediate certificate
-CERT_REQUIRED = ENV == "DEBUG-CERT"
-if CERT_REQUIRED:
-    CERT = 'certs/zscaler-cert-chain.pem'
 
 db = config.get('DATABASE', 'dbfile')
 
@@ -71,12 +68,11 @@ def download_blocklist():
     url = "https://lists.blocklist.de/lists/all.txt"
 
     try:
-        if CERT_REQUIRED:
+        if USECERT:
             response = requests.get(url=url, verify=CERT, timeout=10)
         else:
             response = requests.get(url=url, timeout=10)
         data = response.text.split("\n")
-
     except requests.exceptions.RequestException as e:
         logger.warning(f"WARNING: unable to connect to blocklist.de. Error was: {e}")
 

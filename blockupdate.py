@@ -96,14 +96,14 @@ def download_abuseipdb(key):
     }
     try:
         # check if test file exists - if so use it instead of calling api
-        if os.path.isfile(test_file):
+        if ENV != 'PROD':
             logger.info("-abuseipdb: reading test data from file..")
-            with open(test_file) as json_data:
-                decoded_response = json.load(json_data)
-                json_data.close()
+            with open(test_file) as data:
+                decoded_response = json.load(data)
+                data.close()
         else:
             logger.info("-abuseipdb: getting data from API..")
-            if CERT_REQUIRED:
+            if USECERT:
                 response = requests.get(url=url, headers=headers, params=querystring, verify=CERT, timeout=10)
             else:
                 response = requests.get(url=url, headers=headers, params=querystring, timeout=10)

@@ -42,7 +42,7 @@ config.read('config.ini')
 VERSION = config.get('APP', 'version')
 ABUSE_KEY = config.get('APP', 'abuseipkey')
 ENV = config.get('APP', 'env')
-LOGLEVEL = getattr(logging, config.get('APP', 'loglevel'))
+LOGLEVEL = getattr(logging, config.get('LOGGING', 'loglevel'))
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
